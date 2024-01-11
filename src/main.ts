@@ -10,10 +10,6 @@ async function bootstrap() {
 
   app.enableCors({
     credentials: true,
-    origin: [
-      'http://localhost:5173',
-      'https://e-commerce-react-one-eosin.vercel.app/',
-    ],
   });
   app.use(helmet());
   app.use(cookieParser());
