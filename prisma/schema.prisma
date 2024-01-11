@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  firstName     String    @db.VarChar(50)
+  lastName      String    @db.VarChar(50)
+  email         String    @unique @db.VarChar(100)
+  phoneNumber   String    @unique @db.VarChar(15)
+  imgUrl        String?   @db.Text
+  address       String?   @db.VarChar(255)
+  city          String?   @db.VarChar(100)
+  state         String?   @db.VarChar(100)
+  pinCode       String?   @db.VarChar(6)
+  otp           String?   @db.VarChar(6)
+  otpExpiryTime DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  cart   Cart @relation(fields: [cartId], references: [id])
+  cartId Int  @unique
+
+  orders Order[]
+  Review Review[]
+
+  @@index([phoneNumber])
+}
+
+model Cart {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User?
+
+  products ProductsOnCart[]
+}
+
+model Product {
+  id                Int      @id @default(autoincrement())
+  name              String   @db.VarChar(255)
+  description       String   @db.Text
+  availableQuantity Int      @default(1)
+  imgUrl            String   @db.Text
+  price             Decimal  @db.Decimal(10, 2)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  carts           ProductsOnCart[]
+  OrderOnProducts OrderOnProducts[]
+  Review          Review[]
+}
+
+model ProductsOnCart {
+  quantity Int @default(1)
+
+  cart   Cart @relation(fields: [cartId], references: [id])
+  cartId Int
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([cartId, productId])
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  totalAmount Decimal  @db.Decimal(10, 2)
+
+  OrderOnProducts OrderOnProducts[]
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model OrderOnProducts {
+  quantity Int
+
+  order   Order @relation(fields: [orderId], references: [id])
+  orderId Int
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([orderId, productId])
+}
+
+model Review {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  rating      Int
+  description String   @db.Text
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+}
