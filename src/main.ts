@@ -6,16 +6,15 @@ import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    cors: {
-      origin: [
-        'http://localhost:5173',
-        'https://e-commerce-react-one-eosin.vercel.app/',
-      ],
-      credentials: true,
-    },
-  });
+  const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    credentials: true,
+    origin: [
+      'http://localhost:5173',
+      'https://e-commerce-react-one-eosin.vercel.app/',
+    ],
+  });
   app.use(helmet());
   app.use(cookieParser());
 
